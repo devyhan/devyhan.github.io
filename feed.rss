@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title></title><description></description><link>https://devyhan93.github.io</link><language>ko</language><lastBuildDate>Thu, 25 Sep 2025 09:16:42 +0000</lastBuildDate><pubDate>Thu, 25 Sep 2025 09:16:42 +0000</pubDate><ttl>250</ttl><atom:link href="https://devyhan93.github.io/feed.rss" rel="self" type="application/rss+xml"/><item><guid isPermaLink="true">https://devyhan93.github.io/posts/first-post</guid><title>Publish로 기술 블로그 시작하기</title><description>Publish 프레임워크로 Swift 기술 블로그 시작하기</description><link>https://devyhan93.github.io/posts/first-post</link><pubDate>Sat, 25 Jan 2025 10:00:00 +0000</pubDate><content:encoded><![CDATA[<h1>Publish로 기술 블로그 시작하기</h1><h2>왜 Publish인가?</h2><p>Publish를 선택한 이유는 다음과 같습니다:</p><ol><li><strong>Swift 기반</strong>: 익숙한 Swift 언어로 블로그를 구성할 수 있습니다.</li><li><strong>타입 안정성</strong>: 컴파일 타임에 오류를 잡을 수 있어 안전합니다.</li><li><strong>커스터마이징</strong>: Plot 라이브러리를 통해 HTML을 프로그래밍 방식으로 생성합니다.</li><li><strong>정적 사이트</strong>: 빠른 로딩 속도와 간편한 배포가 가능합니다.</li></ol><h2>설정 과정</h2><p>설정은 생각보다 간단했습니다:</p><pre><code class="language-swift">struct Blog: Website {
+    enum SectionID: String, WebsiteSectionID {
+        case posts, about, projects
+    }
+
+    var name = "DevYhan's Tech Blog"
+    var description = "개발 경험과 기술 인사이트를 공유하는 블로그"
+}
+</code></pre>]]></content:encoded></item></channel></rss>
