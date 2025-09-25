@@ -2,10 +2,9 @@
 (function() {
     let searchIndex = [];
     let fuse = null;
-    let searchModal = null;
+    let searchContainer = null;
     let searchInput = null;
     let searchResults = null;
-    let searchButton = null;
 
     // Initialize search when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
@@ -13,8 +12,8 @@
     });
 
     function initializeSearch() {
-        // Create search modal HTML
-        createSearchModal();
+        // Create inline search HTML
+        createInlineSearch();
 
         // Load search index
         loadSearchIndex();
@@ -23,44 +22,41 @@
         setupEventListeners();
     }
 
-    function createSearchModal() {
-        // Create modal HTML structure
-        const modalHTML = `
-            <div id="search-modal" class="search-modal" style="display: none;">
-                <div class="search-modal-content">
-                    <div class="search-header">
-                        <input type="text" id="search-input" class="search-input" placeholder="검색어를 입력하세요..." autocomplete="off">
-                        <button id="search-close" class="search-close">&times;</button>
-                    </div>
-                    <div id="search-results" class="search-results"></div>
+    function createInlineSearch() {
+        // Create inline search HTML structure
+        const searchHTML = `
+            <div id="search-container" class="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="search-input" class="search-input" placeholder="검색..." autocomplete="off">
+                    <span class="search-shortcut">⌘K</span>
                 </div>
+                <div id="search-results" class="search-results" style="display: none;"></div>
             </div>
         `;
 
-        // Add search button to header
-        const searchButtonHTML = `
-            <button id="search-button" class="search-button" aria-label="Search">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-            </button>
-        `;
+        // Add search to header navigation
+        const nav = document.querySelector('nav');
+        const header = document.querySelector('header .wrapper');
 
-        // Add modal to body
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        // Add search button to navigation (if navigation exists)
-        const nav = document.querySelector('nav') || document.querySelector('header');
         if (nav) {
-            nav.insertAdjacentHTML('beforeend', searchButtonHTML);
+            // Insert search after nav
+            nav.insertAdjacentHTML('afterend', searchHTML);
+        } else if (header) {
+            // Or add to header wrapper
+            header.insertAdjacentHTML('beforeend', searchHTML);
+        } else {
+            // Fallback: add to body
+            document.body.insertAdjacentHTML('afterbegin', searchHTML);
         }
 
         // Get references to elements
-        searchModal = document.getElementById('search-modal');
+        searchContainer = document.getElementById('search-container');
         searchInput = document.getElementById('search-input');
         searchResults = document.getElementById('search-results');
-        searchButton = document.getElementById('search-button');
     }
 
     function loadSearchIndex() {
@@ -91,30 +87,31 @@
     }
 
     function setupEventListeners() {
-        // Open search modal
-        if (searchButton) {
-            searchButton.addEventListener('click', openSearch);
-        }
-
-        // Close search modal
-        document.getElementById('search-close').addEventListener('click', closeSearch);
-
-        // Close on escape key
+        // Focus search with Cmd+K or Ctrl+K
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeSearch();
-            }
-            // Open search with Cmd+K or Ctrl+K
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                openSearch();
+                searchInput.focus();
+                searchInput.select();
+            }
+            // Hide results on Escape
+            if (e.key === 'Escape') {
+                searchResults.style.display = 'none';
+                searchInput.blur();
             }
         });
 
-        // Close when clicking outside
-        searchModal.addEventListener('click', function(e) {
-            if (e.target === searchModal) {
-                closeSearch();
+        // Show results on focus
+        searchInput.addEventListener('focus', function() {
+            if (searchInput.value.length >= 2) {
+                searchResults.style.display = 'block';
+            }
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchContainer.contains(e.target)) {
+                searchResults.style.display = 'none';
             }
         });
 
@@ -128,24 +125,13 @@
         });
     }
 
-    function openSearch() {
-        searchModal.style.display = 'flex';
-        searchInput.focus();
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeSearch() {
-        searchModal.style.display = 'none';
-        searchInput.value = '';
-        searchResults.innerHTML = '';
-        document.body.style.overflow = '';
-    }
-
     function performSearch(query) {
         if (!query || query.length < 2) {
-            searchResults.innerHTML = '<div class="search-no-results">검색어를 2자 이상 입력해주세요.</div>';
+            searchResults.style.display = 'none';
             return;
         }
+
+        searchResults.style.display = 'block';
 
         if (!fuse) {
             searchResults.innerHTML = '<div class="search-no-results">검색 인덱스를 로딩 중입니다...</div>';
