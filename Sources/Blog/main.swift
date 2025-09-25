@@ -20,11 +20,26 @@ struct Blog: Website {
 
     // Update these properties to configure your website:
     var url = URL(string: "https://devyhan93.github.io")!
-    var name = "DevYhan's Tech Blog"
-    var description = "개발 경험과 기술 인사이트를 공유하는 블로그"
+    var name = ""
+    var description = ""
     var language: Language { .korean }
     var imagePath: Path? { nil }
 }
 
-// This will generate your website using the built-in Foundation theme:
-try Blog().publish(withTheme: .foundation)
+// This will generate your website using the Foundation theme with search:
+try Blog().publish(
+    withTheme: .foundationWithSearch,
+    additionalSteps: [
+        .generateSearchIndex(includeContent: true),
+        .step(named: "Copy search resources") { context in
+            let searchCSS = try context.createOutputFile(at: "search.css")
+            let searchJS = try context.createOutputFile(at: "search.js")
+
+            let cssFile = try context.file(at: "Resources/search.css")
+            let jsFile = try context.file(at: "Resources/search.js")
+
+            try searchCSS.write(cssFile.read())
+            try searchJS.write(jsFile.read())
+        }
+    ]
+)
