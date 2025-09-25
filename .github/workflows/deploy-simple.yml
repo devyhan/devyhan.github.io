@@ -1,0 +1,32 @@
+name: Simple Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: macos-13
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.9"
+
+      - name: Build website
+        run: |
+          swift build --configuration release
+          swift run --configuration release
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./Output
+          publish_branch: gh-pages
+          force_orphan: true

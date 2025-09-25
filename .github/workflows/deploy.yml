@@ -16,19 +16,27 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Swift
-        uses: swift-actions/setup-swift@v1
+        uses: swift-actions/setup-swift@v2
         with:
           swift-version: "5.9"
 
+      - name: Cache Swift dependencies
+        uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-swift-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-swift-
+
       - name: Build website
         run: |
-          swift build -c release
-          swift run -c release
+          swift build --configuration release
+          swift run --configuration release
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
